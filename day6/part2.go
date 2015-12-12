@@ -33,12 +33,12 @@ func generateDimmerLightGrid() dimmerLights {
 }
 
 func getTotalBrightnessOfDimmerLights(dimmmerLights dimmerLights) int {
-	var totalLightBrightnessCound int
+	var totalLightBrightnessCount int
 	for xCoordinate := 0; xCoordinate < 1000; xCoordinate++ {
 		for yCoordinate := 0; yCoordinate < 1000; yCoordinate++ {
 			var coordinate = fmt.Sprintf("%d,%d", xCoordinate, yCoordinate)
-			totalLightBrightnessCound += dimmmerLights.lightGrid[coordinate]
+			totalLightBrightnessCount += dimmmerLights.lightGrid[coordinate]
 		}
 	}
-	return totalLightBrightnessCound
+	return totalLightBrightnessCount
 }
