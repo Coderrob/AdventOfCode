@@ -138,6 +138,7 @@ func couldPerformInstuctionLine(instructionLine string) bool {
 				if doesCircuitExist(circuitOne) == false {
 					return false	
 				}
+				
 				shiftValue, _ := strconv.ParseUint(circuitTwo, 0, 16)	
 				circuits[destinationCircuit] = leftShiftOperation(circuits[circuitOne], uint16(shiftValue))
 				addCircuit(destinationCircuit)
@@ -149,6 +150,7 @@ func couldPerformInstuctionLine(instructionLine string) bool {
 				if doesCircuitExist(circuitOne) == false {
 					return false	
 				}
+				
 				shiftValue, _ := strconv.ParseUint(circuitTwo, 0, 16)	
 				circuits[destinationCircuit] = rightShiftOperation(circuits[circuitOne], uint16(shiftValue))
 				addCircuit(destinationCircuit)
@@ -159,24 +161,30 @@ func couldPerformInstuctionLine(instructionLine string) bool {
 				// If the left operand is a number		
 				initialValue, err := strconv.ParseUint(circuitOne, 0, 16)
 
+				// If left opererand is a value instead of circuit name perform the opp
 				if err == nil {
 					circuits[destinationCircuit] = andOperation(uint16(initialValue), circuits[circuitTwo])
 					addCircuit(destinationCircuit)
-				} else {
-					if doesCircuitExist(circuitOne) == false {
-							return false
-					}				
-					circuits[destinationCircuit] = andOperation(circuits[circuitOne], circuits[circuitTwo])
-					addCircuit(destinationCircuit)
-				}
+					return true
+				} 
+				
+				if doesCircuitExist(circuitOne) == false {
+					return false
+				}			
+					
+				circuits[destinationCircuit] = andOperation(circuits[circuitOne], circuits[circuitTwo])
+				addCircuit(destinationCircuit)
+				return true
 			}
 			
 			if operationType == "OR" {
 				if doesCircuitExist(circuitOne) == false || doesCircuitExist(circuitTwo) == false {
 					return false
 				}
+				
 				circuits[destinationCircuit] = orOperation(circuits[circuitOne], circuits[circuitTwo])
 				addCircuit(destinationCircuit)
+				return true
 			}
 	}
 
