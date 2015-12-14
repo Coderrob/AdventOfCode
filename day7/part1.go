@@ -43,7 +43,6 @@ In little Bobby's kit's instructions booklet (provided as your puzzle input), wh
 import (
 	"os"
 	"fmt"
-	"sort"
 	"bufio"	
 	"strconv"
 	"strings"
