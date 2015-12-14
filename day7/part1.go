@@ -43,14 +43,15 @@ In little Bobby's kit's instructions booklet (provided as your puzzle input), wh
 import (
 	"os"
 	"fmt"
-	"bufio"
+	"sort"
+	"bufio"	
 	"strconv"
 	"strings"
 )
 
 var operationSeperator = " -> "
 var circuits = map[string]uint16 {}
-var circuitNames = []string {} 
+var circuitNames = []string {}
 var instructions = []string {}
 
 func loadCircuitInstructionFile() {
@@ -68,10 +69,12 @@ func processInstructionsUntilAllCircuitsValuesAreFound() {
 	for instructionsComplete == false {
 		instructionsComplete = true
 		for index := 0; index < len(instructions); index++ {
-			if couldPerformInstuctionLine(instructions[index]) != true {				
+			if couldPerformInstuctionLine(instructions[index]) != true {
+				fmt.Println(instructions[index])				
 				instructionsComplete = false
-			}			
+			}
 		}
+		fmt.Println("----")
 	}
 }
 
@@ -97,10 +100,24 @@ func couldPerformInstuctionLine(instructionLine string) bool {
 	var leftOperations = strings.Split(leftOperation, " ")
 	
 	switch len(leftOperations) {
-		case 1: // e.x. "123"
-			initialValue, _ := strconv.ParseUint(leftOperations[0], 0, 16)	
-			circuits[destinationCircuit] = uint16(initialValue)
-			addCircuit(destinationCircuit)
+		case 1: // e.x. "123" or "lx"	
+			initialValue, err := strconv.ParseUint(leftOperation, 0, 16)
+
+			if err == nil {
+				if doesCircuitExist(destinationCircuit) {
+					return true
+				}
+			
+				circuits[destinationCircuit] = uint16(initialValue)
+				addCircuit(destinationCircuit)	
+			} else {
+				if doesCircuitExist(leftOperation) == false {
+					return false
+				}
+				
+				circuits[destinationCircuit] = circuits[leftOperation]
+				addCircuit(destinationCircuit)
+			}
 			
 		case 2: // e.x. "NOT bar"
 			var circuit = leftOperations[1]
@@ -110,39 +127,56 @@ func couldPerformInstuctionLine(instructionLine string) bool {
 			}
 			
 			circuits[destinationCircuit] = notOperation(circuits[circuit])			
-			addCircuit(destinationCircuit)	
+			addCircuit(destinationCircuit)
 			
 		case 3: // e.x. "foo LSHIFT 2" or "bar AND foo"
 			var circuitOne = leftOperations[0]
 			var operationType = leftOperations[1]
+			var circuitTwo = leftOperations[2]
 			
-			// No sense in continuing if the first circuit wasn't added yet
-			if doesCircuitExist(circuitOne) == false {
-				return false	
+			if operationType == "LSHIFT" {
+				// No sense in continuing if the first circuit wasn't added yet
+				if doesCircuitExist(circuitOne) == false {
+					return false	
+				}
+				shiftValue, _ := strconv.ParseUint(circuitTwo, 0, 16)	
+				circuits[destinationCircuit] = leftShiftOperation(circuits[circuitOne], uint16(shiftValue))
+				addCircuit(destinationCircuit)
+				return true
+			} 
+			
+			if operationType == "RSHIFT" {
+				// No sense in continuing if the first circuit wasn't added yet
+				if doesCircuitExist(circuitOne) == false {
+					return false	
+				}
+				shiftValue, _ := strconv.ParseUint(circuitTwo, 0, 16)	
+				circuits[destinationCircuit] = rightShiftOperation(circuits[circuitOne], uint16(shiftValue))
+				addCircuit(destinationCircuit)
+				return true
 			}
 			
-			if operationType == "LSHIFT" || operationType == "RSHIFT" {							
-				shiftValue, _ := strconv.ParseUint(leftOperations[2], 0, 16)								
-				switch operationType {
-					case "LSHIFT":
-						circuits[destinationCircuit] = leftShiftOperation(circuits[circuitOne], uint16(shiftValue))
-					case "RSHIFT":
-						circuits[destinationCircuit] = rightShiftOperation(circuits[circuitOne], uint16(shiftValue))
-				}				
-				addCircuit(destinationCircuit)				
-			} else if operationType == "ADD" || operationType == "OR" {			
-				var circuitTwo = leftOperations[2]										
-				
-				if doesCircuitExist(circuitTwo) == false {
+			if operationType == "AND" {
+				// If the left operand is a number		
+				initialValue, err := strconv.ParseUint(circuitOne, 0, 16)
+
+				if err == nil {
+					circuits[destinationCircuit] = andOperation(uint16(initialValue), circuits[circuitTwo])
+					addCircuit(destinationCircuit)
+				} else {
+					if doesCircuitExist(circuitOne) == false {
+							return false
+					}				
+					circuits[destinationCircuit] = andOperation(circuits[circuitOne], circuits[circuitTwo])
+					addCircuit(destinationCircuit)
+				}
+			}
+			
+			if operationType == "OR" {
+				if doesCircuitExist(circuitOne) == false || doesCircuitExist(circuitTwo) == false {
 					return false
 				}
-				
-				switch operationType {
-					case "AND":
-						circuits[destinationCircuit] = andOperation(circuits[circuitOne], circuits[circuitTwo])
-					case "OR":
-						circuits[destinationCircuit] = orOperation(circuits[circuitOne], circuits[circuitTwo])
-				}			
+				circuits[destinationCircuit] = orOperation(circuits[circuitOne], circuits[circuitTwo])
 				addCircuit(destinationCircuit)
 			}
 	}
@@ -150,18 +184,8 @@ func couldPerformInstuctionLine(instructionLine string) bool {
 	return true
 }
 
-func writeOutCircuitValues(circuits map[string]uint16) {
-	fmt.Println("-------")
-	for key, value := range circuits {
-		fmt.Println(key, value)
-	}
-}
-
-func writeOutCircuitNames(circuits []string) {
-	fmt.Println("-------")
-	for key, value := range circuits {
-		fmt.Println(key, value)
-	}
+func writeOutCircuitValue(circuit string) {
+	fmt.Println(circuits[circuit])
 }
 
 func andOperation(circuitOne uint16, circuitTwo uint16) uint16 {

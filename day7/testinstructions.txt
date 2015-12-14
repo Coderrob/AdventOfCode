@@ -1,8 +1,10 @@
-123 -> xd
-456 -> y
-xd AND y -> d
-xd OR y -> e
-xd LSHIFT 2 -> f
-y RSHIFT 2 -> g
-NOT xd -> h
 NOT y -> i
+NOT xd -> h
+y RSHIFT 2 -> g
+456 -> y
+xd LSHIFT 2 -> f
+xd OR y -> e
+xd AND y -> d
+123 -> xd
+1 AND y -> moo
+y -> moo2
