@@ -4,11 +4,7 @@ import "fmt"
 
 func main() {	
 	var instructions = getInstructionsFromFile()
-	fmt.Println(instructions.getCircuitValue("la"))
-	
-	for _, instruction := range instructions {
-		if instruction.completed {
-			fmt.Println(instruction)
-		}
-	}
+	fmt.Println("=========================")
+	fmt.Println(instructions.getCircuitValue("a"))	
+	fmt.Println(instructions.getCircuitValue("a"))	
 }

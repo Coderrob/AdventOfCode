@@ -54,13 +54,13 @@ func getInstructionsFromFile() Instructions {
 	scanner.Split(bufio.ScanLines)
 	var instructions = Instructions {} 
 	for scanner.Scan() {
-		instructions = append(instructions, *getInstructionFromString(scanner.Text()))
+		instructions = append(instructions, getInstructionFromString(scanner.Text()))
 	}
 	return instructions
 }
 
-func getInstructionFromString(instructionLine string) *InstructionOperation {
-	var instruction = new(InstructionOperation)	
+func getInstructionFromString(instructionLine string) InstructionOperation {
+	var instruction = InstructionOperation {}	
 	var operationSegments = strings.Split(instructionLine, operationSeperator)
 	var operations = strings.Split(operationSegments[0], " ")	
 	// Set the destination that comes after ' -> '
@@ -92,30 +92,33 @@ func getInstructionFromString(instructionLine string) *InstructionOperation {
 	return instruction
 }
 
-func (instructions *Instructions) getInstructionByDestination(name string) (*InstructionOperation, bool) {	
-	for _, instruction := range *instructions {
+func (instructions Instructions) getInstructionByDestination(name string) (InstructionOperation, int, bool) {
+	var instruction InstructionOperation	
+	for index, instruction := range instructions {
 		if instruction.destination == name {
-			return &instruction, true
+			return instruction, index, true
 		}
 	}
-	return nil, false
+	return instruction, 0, false
 }
 
-func (instructions *Instructions) getCircuitValue(name string) (uint16, bool) {
+func (instructions Instructions) getCircuitValue(name string) (uint16, bool) {	
 	if len(name) <= 0 {
 		return 0, false
 	}
-	
+
 	if value, isNumeric := getNumericValue(name); isNumeric {
 		return value, true
 	}
 	
-	instruction, instructionFound := instructions.getInstructionByDestination(name)
+	instruction, index, instructionFound := instructions.getInstructionByDestination(name)
 	
-	if instructionFound == false || instruction == nil {
+	fmt.Println(instruction)
+	
+	if instructionFound == false {
 		return 0, false
 	}
-	
+
 	if instruction.completed {
 		return instruction.value, true
 	}
@@ -140,7 +143,7 @@ func (instructions *Instructions) getCircuitValue(name string) (uint16, bool) {
 	
 	instruction.completed = true
 	
-	fmt.Println("complete", instruction)
+	instructions[index] = instruction
 	
 	return instruction.value, true
 }
