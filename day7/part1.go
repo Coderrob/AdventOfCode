@@ -54,55 +54,54 @@ func getInstructionsFromFile() Instructions {
 	scanner.Split(bufio.ScanLines)
 	var instructions = Instructions {} 
 	for scanner.Scan() {
-		instructions = append(instructions, getInstructionFromString(scanner.Text()))		
+		instructions = append(instructions, *getInstructionFromString(scanner.Text()))
 	}
-	fmt.Println("instructions loaded")
 	return instructions
 }
 
-func getInstructionFromString(instructionLine string) InstructionOperation {
-	var instructionOp = InstructionOperation {}	
+func getInstructionFromString(instructionLine string) *InstructionOperation {
+	var instruction = new(InstructionOperation)	
 	var operationSegments = strings.Split(instructionLine, operationSeperator)
 	var operations = strings.Split(operationSegments[0], " ")	
 	// Set the destination that comes after ' -> '
-	instructionOp.destination = operationSegments[1]
+	instruction.destination = operationSegments[1]
 	
 	switch len(operations) {
 		case 1: // e.x. "123" or "lx"
-			instructionOp.operationType = SET
-			instructionOp.argumentOne = operations[0]			
+			instruction.operationType = SET
+			instruction.argumentOne = operations[0]			
 		case 2: // e.x. "NOT bar"
-			instructionOp.operationType = NOT
-			instructionOp.argumentOne = operations[1]			
+			instruction.operationType = NOT
+			instruction.argumentOne = operations[1]			
 		case 3: // e.x. "foo LSHIFT 2" or "bar AND foo" 
-			instructionOp.argumentOne = operations[0]
-			instructionOp.argumentTwo = operations[2]
+			instruction.argumentOne = operations[0]
+			instruction.argumentTwo = operations[2]
 				
 			switch operations[1] {
 				case "LSHIFT":
-					instructionOp.operationType = LSSHIFT
+					instruction.operationType = LSSHIFT
 				case "RSHIFT":
-					instructionOp.operationType = RSHIFT
+					instruction.operationType = RSHIFT
 				case "AND":
-					instructionOp.operationType = AND
+					instruction.operationType = AND
 				case "OR":
-					instructionOp.operationType = OR
+					instruction.operationType = OR
 			}
 	}	
-	return instructionOp
+	
+	return instruction
 }
 
-func (instructions Instructions) getInstructionByDestination(name string) (InstructionOperation, bool) {
-	var instruction InstructionOperation
-	for _, instruction := range instructions {
+func (instructions *Instructions) getInstructionByDestination(name string) (*InstructionOperation, bool) {	
+	for _, instruction := range *instructions {
 		if instruction.destination == name {
-			return instruction, true
+			return &instruction, true
 		}
 	}
-	return instruction, false
+	return nil, false
 }
 
-func (instructions Instructions) getCircuitValue(name string) (uint16, bool) {
+func (instructions *Instructions) getCircuitValue(name string) (uint16, bool) {
 	if len(name) <= 0 {
 		return 0, false
 	}
@@ -113,8 +112,7 @@ func (instructions Instructions) getCircuitValue(name string) (uint16, bool) {
 	
 	instruction, instructionFound := instructions.getInstructionByDestination(name)
 	
-	if instructionFound == false {
-		fmt.Println("circuit not found", name)
+	if instructionFound == false || instruction == nil {
 		return 0, false
 	}
 	
@@ -122,18 +120,18 @@ func (instructions Instructions) getCircuitValue(name string) (uint16, bool) {
 		return instruction.value, true
 	}
 	
-	var inputValueOne, _ = instructions.getCircuitValue(instruction.argumentOne)
-	var inputValueTwo, _ = instructions.getCircuitValue(instruction.argumentTwo)
+	inputValueOne, _ := instructions.getCircuitValue(instruction.argumentOne)	
+	inputValueTwo, _ := instructions.getCircuitValue(instruction.argumentTwo)
 	
 	switch instruction.operationType {
 	case SET:
 		instruction.value = inputValueOne
+	case NOT:
+		instruction.value = not(inputValueOne)	
 	case RSHIFT:
 		instruction.value = rightShift(inputValueOne, inputValueTwo)
 	case LSSHIFT:
-		instruction.value = leftShift(inputValueOne, inputValueTwo)	
-	case NOT:
-		instruction.value = not(inputValueOne)	
+		instruction.value = leftShift(inputValueOne, inputValueTwo)		
 	case AND:
 		instruction.value = and(inputValueOne, inputValueTwo)
 	case OR:
@@ -142,7 +140,7 @@ func (instructions Instructions) getCircuitValue(name string) (uint16, bool) {
 	
 	instruction.completed = true
 	
-	fmt.Println(instruction)
-		
+	fmt.Println("complete", instruction)
+	
 	return instruction.value, true
 }
