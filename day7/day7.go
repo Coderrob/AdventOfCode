@@ -1,7 +1,8 @@
 package main
 
-func main() {
-	loadCircuitInstructionFile()
-	processInstructionsUntilAllCircuitsValuesAreFound()
-	writeOutCircuitValue("a")
+import "fmt"
+
+func main() {	
+	var instructions = getInstructionsFromFile()
+	fmt.Println(instructions.getCircuitValue("a"))
 }

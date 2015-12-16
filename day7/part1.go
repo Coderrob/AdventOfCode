@@ -44,173 +44,105 @@ import (
 	"os"
 	"fmt"
 	"bufio"	
-	"strconv"
 	"strings"
 )
 
-var operationSeperator = " -> "
-var circuits = map[string]uint16 {}
-var circuitNames = []string {}
-var instructions = []string {}
-
-func loadCircuitInstructionFile() {
+func getInstructionsFromFile() Instructions {
 	inFile, _ := os.Open("instructions.txt")
 	defer inFile.Close()
 	scanner := bufio.NewScanner(inFile)
-	scanner.Split(bufio.ScanLines) 
+	scanner.Split(bufio.ScanLines)
+	var instructions = Instructions {} 
 	for scanner.Scan() {
-		instructions = append(instructions, scanner.Text())
+		instructions = append(instructions, getInstructionFromString(scanner.Text()))		
 	}
+	fmt.Println("instructions loaded")
+	return instructions
 }
 
-func processInstructionsUntilAllCircuitsValuesAreFound() {
-	var instructionsComplete bool
-	for instructionsComplete == false {
-		instructionsComplete = true
-		for index := 0; index < len(instructions); index++ {
-			if couldPerformInstuctionLine(instructions[index]) != true {
-				fmt.Println(instructions[index])				
-				instructionsComplete = false
-			}
-		}
-		fmt.Println("----")
-	}
-}
-
-func doesCircuitExist(circuit string) bool {
-    for _, value := range circuitNames {
-        if value == circuit {
-            return true
-        }
-    }
-    return false
-}
-
-func addCircuit(circuit string) {
-	if doesCircuitExist(circuit) == false {
-		circuitNames = append(circuitNames, circuit)
-	}
-}
-
-func couldPerformInstuctionLine(instructionLine string) bool {
-	var operations = strings.Split(instructionLine, operationSeperator)
-	var leftOperation = operations[0]	
-	var destinationCircuit = operations[1]
-	var leftOperations = strings.Split(leftOperation, " ")
+func getInstructionFromString(instructionLine string) InstructionOperation {
+	var instructionOp = InstructionOperation {}	
+	var operationSegments = strings.Split(instructionLine, operationSeperator)
+	var operations = strings.Split(operationSegments[0], " ")	
+	// Set the destination that comes after ' -> '
+	instructionOp.destination = operationSegments[1]
 	
-	switch len(leftOperations) {
-		case 1: // e.x. "123" or "lx"	
-			initialValue, err := strconv.ParseUint(leftOperation, 0, 16)
-
-			if err == nil {
-				if doesCircuitExist(destinationCircuit) {
-					return true
-				}
-			
-				circuits[destinationCircuit] = uint16(initialValue)
-				addCircuit(destinationCircuit)	
-			} else {
-				if doesCircuitExist(leftOperation) == false {
-					return false
-				}
-				
-				circuits[destinationCircuit] = circuits[leftOperation]
-				addCircuit(destinationCircuit)
-			}
-			
+	switch len(operations) {
+		case 1: // e.x. "123" or "lx"
+			instructionOp.operationType = SET
+			instructionOp.argumentOne = operations[0]			
 		case 2: // e.x. "NOT bar"
-			var circuit = leftOperations[1]
-			
-			if doesCircuitExist(circuit) == false {
-				return false
-			}
-			
-			circuits[destinationCircuit] = notOperation(circuits[circuit])			
-			addCircuit(destinationCircuit)
-			
-		case 3: // e.x. "foo LSHIFT 2" or "bar AND foo"
-			var circuitOne = leftOperations[0]
-			var operationType = leftOperations[1]
-			var circuitTwo = leftOperations[2]
-			
-			if operationType == "LSHIFT" {
-				// No sense in continuing if the first circuit wasn't added yet
-				if doesCircuitExist(circuitOne) == false {
-					return false	
-				}
+			instructionOp.operationType = NOT
+			instructionOp.argumentOne = operations[1]			
+		case 3: // e.x. "foo LSHIFT 2" or "bar AND foo" 
+			instructionOp.argumentOne = operations[0]
+			instructionOp.argumentTwo = operations[2]
 				
-				shiftValue, _ := strconv.ParseUint(circuitTwo, 0, 16)	
-				circuits[destinationCircuit] = leftShiftOperation(circuits[circuitOne], uint16(shiftValue))
-				addCircuit(destinationCircuit)
-				return true
-			} 
-			
-			if operationType == "RSHIFT" {
-				// No sense in continuing if the first circuit wasn't added yet
-				if doesCircuitExist(circuitOne) == false {
-					return false	
-				}
-				
-				shiftValue, _ := strconv.ParseUint(circuitTwo, 0, 16)	
-				circuits[destinationCircuit] = rightShiftOperation(circuits[circuitOne], uint16(shiftValue))
-				addCircuit(destinationCircuit)
-				return true
+			switch operations[1] {
+				case "LSHIFT":
+					instructionOp.operationType = LSSHIFT
+				case "RSHIFT":
+					instructionOp.operationType = RSHIFT
+				case "AND":
+					instructionOp.operationType = AND
+				case "OR":
+					instructionOp.operationType = OR
 			}
-			
-			if operationType == "AND" {
-				// If the left operand is a number		
-				initialValue, err := strconv.ParseUint(circuitOne, 0, 16)
+	}	
+	return instructionOp
+}
 
-				// If left opererand is a value instead of circuit name perform the opp
-				if err == nil {
-					circuits[destinationCircuit] = andOperation(uint16(initialValue), circuits[circuitTwo])
-					addCircuit(destinationCircuit)
-					return true
-				} 
-				
-				if doesCircuitExist(circuitOne) == false {
-					return false
-				}			
-					
-				circuits[destinationCircuit] = andOperation(circuits[circuitOne], circuits[circuitTwo])
-				addCircuit(destinationCircuit)
-				return true
-			}
-			
-			if operationType == "OR" {
-				if doesCircuitExist(circuitOne) == false || doesCircuitExist(circuitTwo) == false {
-					return false
-				}
-				
-				circuits[destinationCircuit] = orOperation(circuits[circuitOne], circuits[circuitTwo])
-				addCircuit(destinationCircuit)
-				return true
-			}
+func (instructions Instructions) getInstructionByDestination(name string) (InstructionOperation, bool) {
+	var instruction InstructionOperation
+	for _, instruction := range instructions {
+		if instruction.destination == name {
+			return instruction, true
+		}
 	}
-
-	return true
+	return instruction, false
 }
 
-func writeOutCircuitValue(circuit string) {
-	fmt.Println(circuits[circuit])
-}
-
-func andOperation(circuitOne uint16, circuitTwo uint16) uint16 {
-	return circuitOne & circuitTwo
-}
-
-func orOperation(circuitOne uint16, circuitTwo uint16) uint16 {
-	return circuitOne | circuitTwo
-}
-
-func notOperation(circuitValue uint16) uint16 {
-	return ^circuitValue
-}
-
-func leftShiftOperation(circuitValue uint16, shiftValue uint16) uint16 {
-	return circuitValue << shiftValue
-}
-
-func rightShiftOperation(circuitValue uint16, shiftValue uint16) uint16 {
-	return circuitValue >> shiftValue
+func (instructions Instructions) getCircuitValue(name string) (uint16, bool) {
+	if len(name) <= 0 {
+		return 0, false
+	}
+	
+	if value, isNumeric := getNumericValue(name); isNumeric {
+		return value, true
+	}
+	
+	instruction, instructionFound := instructions.getInstructionByDestination(name)
+	
+	if instructionFound == false {
+		fmt.Println("circuit not found", name)
+		return 0, false
+	}
+	
+	if instruction.completed {
+		return instruction.value, true
+	}
+	
+	var inputValueOne, _ = instructions.getCircuitValue(instruction.argumentOne)
+	var inputValueTwo, _ = instructions.getCircuitValue(instruction.argumentTwo)
+	
+	switch instruction.operationType {
+	case SET:
+		instruction.value = inputValueOne
+	case RSHIFT:
+		instruction.value = rightShift(inputValueOne, inputValueTwo)
+	case LSSHIFT:
+		instruction.value = leftShift(inputValueOne, inputValueTwo)	
+	case NOT:
+		instruction.value = not(inputValueOne)	
+	case AND:
+		instruction.value = and(inputValueOne, inputValueTwo)
+	case OR:
+		instruction.value = or(inputValueOne, inputValueTwo)
+	}
+	
+	instruction.completed = true
+	
+	fmt.Println(instruction)
+		
+	return instruction.value, true
 }
