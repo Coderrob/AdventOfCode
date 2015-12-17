@@ -42,7 +42,6 @@ In little Bobby's kit's instructions booklet (provided as your puzzle input), wh
 
 import (
 	"os"
-	"fmt"
 	"bufio"	
 	"strings"
 )
@@ -112,8 +111,6 @@ func (instructions Instructions) getCircuitValue(name string) (uint16, bool) {
 	}
 	
 	instruction, index, instructionFound := instructions.getInstructionByDestination(name)
-	
-	fmt.Println(instruction)
 	
 	if instructionFound == false {
 		return 0, false
