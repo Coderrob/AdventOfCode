@@ -8,7 +8,7 @@ func main() {
 	circuitValue, _ := instructions.getCircuitValue("a")	
 	fmt.Println(circuitValue)
 	
-	fmt.Println("Part 1")	
+	fmt.Println("Part 2")	
 	instructions.resetValues()	
 	instructions.setCircuitValue("b", circuitValue)	
 	circuitValueTwo, _ := instructions.getCircuitValue("a")
