@@ -34,7 +34,7 @@ func generateNewPassword(input string) string {
 		for index := inputLength - 1; index >= 0; index-- {
 			passwordBytes[index]++
 
-			if passwordBytes[index] == 'z' {
+			if passwordBytes[index] > 'z' {
 				passwordBytes[index] = 'a'
 			} else {
 				break

@@ -7,7 +7,7 @@ import (
 // PasswordLengthRequirement is the required length of the Elf security password
 const PasswordLengthRequirement = 8
 
-var forbiddenCharacters = []byte { 'i', 'o', 'l'}
+var forbiddenCharacters = []byte { 'i', 'o', 'l' }
 
 func getsWhetherPasswordMeetsSecurityPolicy(input string) bool {
 	if meetsRequirement := meetsSecurityLengthRequirement(input); !meetsRequirement {
