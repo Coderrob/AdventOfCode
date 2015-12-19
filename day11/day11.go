@@ -3,9 +3,10 @@ package main
 import "fmt"
 
 func main() {	
-	runPasswordValidationTests()
-	runPasswordGenerationTests()
-	
 	fmt.Println("Part 1")
-	fmt.Println(generateNewPassword("vzbxkghb"))
+    newPassword := generateNewPassword("vzbxkghb")
+    fmt.Println(newPassword)
+    
+    fmt.Println("Part 2")
+	fmt.Println(generateNewPassword(newPassword))
 }
