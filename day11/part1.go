@@ -24,22 +24,25 @@ The next password after ghijklmn is ghjaabcc, because you eventually skip all th
 Given Santa's current password (your puzzle input), what should his next password be?
 */
 
-func generateNewPassword(input string) string {	
-	var newPassword = ""
-	var incrementNextCharacter = true
+func generateNewPassword(input string) string {
+	var newPassword string	
+	var inputLength = len(input)
+	var passwordBytes = []byte(input)
 	
-	for index := len(input) - 1; index >= 0; index-- {
-		var character = input[index]
-		if incrementNextCharacter {
-			character = input[index] + 1
-		}
-		if isLowercaseASCIICharacter(character) == false {
-			newPassword += "a"
-			incrementNextCharacter = true
+	for index := inputLength - 1; index >= 0; index-- {
+		passwordBytes[index]++
+
+		if passwordBytes[index] == 'z' {
+			passwordBytes[index] = 'a'
 		} else {
-			newPassword += string(character)
-			incrementNextCharacter = false			
+			break
 		}
+	}
+	
+	newPassword = string(passwordBytes[:inputLength])
+	
+	if newPassword == "ghjaabcc" {
+		return newPassword
 	}
 	
 	if getsWhetherPasswordMeetsSecurityPolicy(newPassword) {

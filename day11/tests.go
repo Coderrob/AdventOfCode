@@ -2,14 +2,21 @@ package main
 
 import "fmt"
 
+func runPasswordGenerationTests() {	
+	fmt.Println(generateNewPassword("abcdefgh") == "abcdffaa") // abcdffaa
+	fmt.Println(generateNewPassword("ghijklmn") == "ghjaabcc") // ghjaabcc
+}
+
 func runPasswordValidationTests() {
 	fmt.Println(getsWhetherPasswordMeetsSecurityPolicy("hijklmmn") == false)
 	fmt.Println(getsWhetherPasswordMeetsSecurityPolicy("abbceffg") == false)
 	fmt.Println(getsWhetherPasswordMeetsSecurityPolicy("abbcegjk") == false)
+	fmt.Println(getsWhetherPasswordMeetsSecurityPolicy("abcceggj") == true)
 
 	fmt.Println(meetsSecurityLengthRequirement("a") == false)
 	fmt.Println(meetsSecurityLengthRequirement("1") == false)
-	fmt.Println(meetsSecurityLengthRequirement("aaaaaaaa") == true)
+	fmt.Println(meetsSecurityLengthRequirement("aaaaaaaaa") == false)
+	fmt.Println(meetsSecurityLengthRequirement("aaaaaaaa") == true)	
 
 	fmt.Println(isLowercaseASCIICharacter('0') == false)
 	fmt.Println(isLowercaseASCIICharacter('z' + 1) == false)
@@ -32,7 +39,4 @@ func runPasswordValidationTests() {
 	fmt.Println(containsIncreasingStraightOfCharacters("abccd") == true)
 	fmt.Println(containsIncreasingStraightOfCharacters("pabcd") == true)
 	fmt.Println(containsIncreasingStraightOfCharacters("pabcf") == true)
-
-	//fmt.Println(generateNewPassword("abcdefgh") == "abcdffaa") // abcdffaa
-	//fmt.Println(generateNewPassword("ghijklmn") == "ghjaabcc") // ghjaabcc
 }
