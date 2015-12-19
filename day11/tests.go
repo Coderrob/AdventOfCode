@@ -26,10 +26,13 @@ func runPasswordValidationTests() {
 	
 	fmt.Println(containsTwoPairsOfUniqueCharacters("abccd") == false)
 	fmt.Println(containsTwoPairsOfUniqueCharacters("aabccd") == true)
+	fmt.Println(containsTwoPairsOfUniqueCharacters("aadbccdd") == true)
 
 	fmt.Println(containsIncreasingStraightOfCharacters("abecd") == false)
 	fmt.Println(containsIncreasingStraightOfCharacters("abccd") == true)
+	fmt.Println(containsIncreasingStraightOfCharacters("pabcd") == true)
+	fmt.Println(containsIncreasingStraightOfCharacters("pabcf") == true)
 
-	fmt.Println(generateNewPassword("abcdefgh")) // abcdffaa
-	fmt.Println(generateNewPassword("ghijklmn")) // ghjaabcc
+	//fmt.Println(generateNewPassword("abcdefgh") == "abcdffaa") // abcdffaa
+	//fmt.Println(generateNewPassword("ghijklmn") == "ghjaabcc") // ghjaabcc
 }

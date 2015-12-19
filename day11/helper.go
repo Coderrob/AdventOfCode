@@ -30,8 +30,7 @@ func getsWhetherPasswordMeetsSecurityPolicy(input string) bool {
 
 func containsOnlyLowercaseCharacters(input string) bool {
 	for index := 0; index < len(input); index++ {
-		var character = input[index]
-		if isLowercaseASCIICharacter(character) == false {
+		if isLowercaseASCIICharacter(input[index]) == false {
 			return false
 		}
 	}
@@ -57,13 +56,13 @@ func containsAnyForbiddenCharacters(input string) bool {
 
 func containsIncreasingStraightOfCharacters(input string) bool {
 	inputLength := len(input)
+	
 	for index := 0; index < inputLength; index++ {
-		if index + 2 < inputLength {
+		if (index + 2) < inputLength {
 			var character = input[index]
 			if (character + 1) == input[index + 1] && (character + 2) == input[index + 2] {				
 				return true
-			}
-			index = index + 2
+			}		
 		}
 	}
 	return false
@@ -72,6 +71,7 @@ func containsIncreasingStraightOfCharacters(input string) bool {
 func containsTwoPairsOfUniqueCharacters(input string) bool {
 	var pairOfCharacterCount int
 	var firstPairsCharacter byte
+	
 	for index := 0; index < len(input); index++ {
 		var character = input[index]
 		if strings.Contains(input, string(character) + string(character)) {
