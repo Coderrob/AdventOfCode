@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 func main() {	
-	//runPasswordValidationTests()
+	runPasswordValidationTests()
 	runPasswordGenerationTests()
 	
 	fmt.Println("Part 1")

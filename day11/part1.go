@@ -25,29 +25,27 @@ Given Santa's current password (your puzzle input), what should his next passwor
 */
 
 func generateNewPassword(input string) string {
-	var newPassword string	
+	var newPassword string
+	var passwordIsValid bool	
 	var inputLength = len(input)
 	var passwordBytes = []byte(input)
 	
-	for index := inputLength - 1; index >= 0; index-- {
-		passwordBytes[index]++
+	for passwordIsValid == false {
+		for index := inputLength - 1; index >= 0; index-- {
+			passwordBytes[index]++
 
-		if passwordBytes[index] == 'z' {
-			passwordBytes[index] = 'a'
-		} else {
+			if passwordBytes[index] == 'z' {
+				passwordBytes[index] = 'a'
+			} else {
+				break
+			}
+		}
+	
+		newPassword = string(passwordBytes[:inputLength])
+        
+		if getsWhetherPasswordMeetsSecurityPolicy(newPassword) {
 			break
 		}
 	}
-	
-	newPassword = string(passwordBytes[:inputLength])
-	
-	if newPassword == "ghjaabcc" {
-		return newPassword
-	}
-	
-	if getsWhetherPasswordMeetsSecurityPolicy(newPassword) {
-		return newPassword
-	}
-	
-	return generateNewPassword(newPassword)
+    return newPassword
 }
