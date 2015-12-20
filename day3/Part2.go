@@ -21,37 +21,19 @@ For example:
 ^v^v^v^v^v now delivers presents to 11 houses, with Santa going one direction and Robo-Santa going the other.
 */
 
-import (
-	"fmt"
-)
-
-func getHouseCountVistedMoreThanOnceBySantaAndRobotSanta(path string) int {
+func getCountOfHousesVisitedMoreThanOnceBySantaAndRobot(path string) int {
 	var houseCount = 1
 
+    santasPosition := Position {}   
 	var santaPositions = map[string]int { "0,0": 1 }
+    
+    robotsPosition := Position {}
 	var robotPositions = map[string]int { "0,0": 1 }
 
-	var xRobotPosition int
-	var yRobotPosition int 
-	
-	var xSantaPosition int
-	var ySantaPosition int
-	
 	for index := 0; index < len(path); index++ {
 		if((index % 2) == 0) {
-			switch(path[index]) {
-				case '<':
-					xSantaPosition--
-				case '>':
-					xSantaPosition++
-				case '^':
-					ySantaPosition++
-				case 'v':
-					ySantaPosition--
-			}	
-			
-			var coordinate = fmt.Sprintf("%d,%d", xSantaPosition, ySantaPosition)
-			
+            coordinate := santasPosition.move(path[index])
+
 			if (santaPositions[coordinate] != 0) {
 				santaPositions[coordinate]++
 			} else {
@@ -61,19 +43,8 @@ func getHouseCountVistedMoreThanOnceBySantaAndRobotSanta(path string) int {
 				}
 			}
 		} else {
-			switch(path[index]) {
-				case '<':
-					xRobotPosition--
-				case '>':
-					xRobotPosition++
-				case '^':
-					yRobotPosition++
-				case 'v':
-					yRobotPosition--
-			}	
-			
-			var coordinate = fmt.Sprintf("%d,%d", xRobotPosition, yRobotPosition)
-			
+            coordinate := robotsPosition.move(path[index])
+
 			if (robotPositions[coordinate] != 0) {
 				robotPositions[coordinate]++
 			} else {				
@@ -86,16 +57,4 @@ func getHouseCountVistedMoreThanOnceBySantaAndRobotSanta(path string) int {
 	}
 
 	return houseCount
-}
-
-func getThreeHousesVisitedTestPath() string {
-	return "^v"
-}
-
-func getThreeHousesVisitedBySantaAndRobotTestPath() string {
-	return "^>v<"
-}
-
-func getElevenHousesVisistedTestPath() string {
-	return "^v^v^v^v^v"
 }

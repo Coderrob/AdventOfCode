@@ -19,29 +19,14 @@ For example:
 ^v^v^v^v^v delivers a bunch of presents to some very lucky children at only 2 houses.
 */
 
-import (
-	"fmt"
-)
-
-func getHouseCountVistedMoreThanOnceBySanta(path string) int {
+func getCountOfHousesVisitedMoreThanOnce(path string) int {
 	var houseCount int
+    var position = Position {}
 	var positions = map[string]int { "0x0": 1 }
-	var xPosition int
-	var yPosition int
+    
 	for index := 0; index < len(path); index++ {
-		switch(path[index]){
-			case '<':
-				xPosition--
-			case '>':
-				xPosition++
-			case '^':
-				yPosition++
-			case 'v':
-				yPosition--
-		}	
-		
-		var coordinate = fmt.Sprintf("%d,%d", xPosition, yPosition)
-		
+        coordinate := position.move(path[index])
+
 		if (positions[coordinate] != 0) {
 			positions[coordinate]++
 		} else {
@@ -51,12 +36,4 @@ func getHouseCountVistedMoreThanOnceBySanta(path string) int {
 	}
 	
 	return houseCount
-}
-
-func getTwoHousesVisitedTestPath() string {
-	return "^v^v^v^v^v"
-}
-
-func getFourHousesVisistedTestPath() string {
-	return "^>v<"
 }
