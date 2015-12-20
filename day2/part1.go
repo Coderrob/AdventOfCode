@@ -34,7 +34,7 @@ func getTotalWrappingPaperRequired() int {
 func getWrappingPaperAmountRequired(input string) int {
 	var dimensions = getDimentionsFromString(input)	
     
-	var present = Present {}
+	present := Present {}
 	present.length = dimensions[0]
 	present.width = dimensions[1]
 	present.height = dimensions[2]

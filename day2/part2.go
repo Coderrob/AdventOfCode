@@ -14,7 +14,6 @@ A present with dimensions 1x1x10 requires 1+1+1+1 = 4 feet of ribbon to wrap the
 How many total feet of ribbon should they order?
 */
 
-// l w h
 import (
 	"bufio"
 	"os"
