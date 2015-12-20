@@ -22,7 +22,7 @@ import (
 
 func getTotalRibbonRequired() int {
 	var totalRibbonRequired int
-	inFile, _ := os.Open("ribbon.txt")
+	inFile, _ := os.Open("presents.txt")
 	defer inFile.Close()
 	scanner := bufio.NewScanner(inFile)
 	scanner.Split(bufio.ScanLines) 
@@ -35,25 +35,10 @@ func getTotalRibbonRequired() int {
 func getRibbonRequired(str string) int {
 	var dimeneions = getDimentionsFromString(str)
 	
-	var length = dimeneions[0]
-	var width = dimeneions[1]
-	var height = dimeneions[2]
+    present := Present {}
+	present.length = dimeneions[0]
+	present.width = dimeneions[1]
+	present.height = dimeneions[2]
 	
-	var ribbonLength = getRibbonLengthByDimension(length, width, height)
-	var bowRibbonLength = getBowRibbonLengthByDimension(length, width, height)
-	
-	return ribbonLength + bowRibbonLength
-}
-
-func getRibbonLengthByDimension(length int, width int, height int) int {
-	var sizes = getTwoSmallestSizes([]int { length, width, height })
-	
-	var sizeOne = sizes[0]
-	var sizeTwo = sizes[1]
-	
-	return (sizeOne * 2) + (sizeTwo * 2)
-}
-
-func getBowRibbonLengthByDimension(length int, width int, height int) int {
-	return length * width * height
+	return present.getRibbonLengthRequiredToWrap()
 }

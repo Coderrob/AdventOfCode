@@ -21,42 +21,23 @@ import (
 
 func getTotalWrappingPaperRequired() int {
 	var totalWrappingPaperRequired int
-	inFile, _ := os.Open("testpresents.txt")
+	inFile, _ := os.Open("presents.txt")
 	defer inFile.Close()
 	scanner := bufio.NewScanner(inFile)
 	scanner.Split(bufio.ScanLines) 
 	for scanner.Scan() {
 		totalWrappingPaperRequired += getWrappingPaperAmountRequired(scanner.Text())
 	}
-	
 	return totalWrappingPaperRequired	
 }
 
 func getWrappingPaperAmountRequired(input string) int {
 	var dimensions = getDimentionsFromString(input)	
+    
+	var present = Present {}
+	present.length = dimensions[0]
+	present.width = dimensions[1]
+	present.height = dimensions[2]
 	
-	var length = dimensions[0]
-	var width = dimensions[1]
-	var height = dimensions[2]
-	
-	return getPaperAmountRequired(length, width, height)
-}
-
-func getPaperAmountRequired(length int, width int, height int) int {
-	var smallestArea = getSmallestArea(length, width, height)
-	var totalSurfaceArea = getTotalSurfaceArea(length, width, height)
-		
-	return smallestArea + totalSurfaceArea
-}
-
-func getTotalSurfaceArea(length int, width int, height int) int {
-	return (2 * length * width) + 
-		   (2 * width * height) + 
-		   (2 * height * length)
-}
-
-func getSmallestArea(length int, width int, height int) int {
-	var areas = []int { (length * width), (width * height), (height * length) }
-	
-	return getSmallestSize(areas)
+	return present.getPaperAmountRequiredToWrap()
 }
