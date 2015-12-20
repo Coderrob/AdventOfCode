@@ -34,7 +34,7 @@ func getTotalRibbonRequired() int {
 
 func getRibbonRequired(str string) int {
 	var dimeneions = getDimentionsFromString(str)
-	
+    
     present := Present {}
 	present.length = dimeneions[0]
 	present.width = dimeneions[1]
