@@ -13,11 +13,3 @@ func getSantasFloor(moves string) int {
 	
 	return floor
 }
-
-func getFloorZeroResult() string {
-	return "(())"
-}
-
-func getFloorNegativeThreeResult() string {
-	return ")())())"
-}

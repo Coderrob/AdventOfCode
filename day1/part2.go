@@ -20,11 +20,3 @@ func getPositionWhenSantasGoesIntoTheBasement(moves string) int {
 	
 	return position
 }
-
-func getBasementOnPositionOne() string {
-	return ")"
-}
-
-func getBasementOnPositionFive() string {
-	return "()())"
-}
