@@ -13,59 +13,73 @@ Ignore any object (and all of its children) which has any property with the valu
 [1,"red",5] has a sum of 6, because "red" in an array has no effect.
 */
 
-import "fmt"
-
 type RemoveRedChildrenFileFilter struct {    
 }
 
 func (filter RemoveRedChildrenFileFilter) Clean(fileData []byte) []byte {    
     cleanedFile := []byte {}
     fileLength := len(fileData)
-    openedSeperators := 0
-    redWordEncountered := false
+    characterCount := 0
     
-    for index := 0; index < fileLength; index++ {        
-        character := fileData[index]
+    for fileIndex := 0; fileIndex < fileLength; fileIndex++ {        
+        var character = fileData[fileIndex]        
+        cleanedFile = append(cleanedFile, character)
+        characterCount++
         
-        if isOpeningObjectCharacter(character) == false {
-            cleanedFile = append(cleanedFile, character)
-            continue
-        }        
-        
-        openedSeperators++
-        for objectIndex := index + 1; objectIndex < fileLength; objectIndex++ {
-            if (objectIndex + 2) < fileLength && fileData[objectIndex] == 'r' && fileData[objectIndex + 1] == 'e' && fileData[objectIndex + 2] == 'd' {            
-                redWordEncountered = true
-            }
-            
-            if isOpeningObjectCharacter(fileData[objectIndex]) {                
-                if redWordEncountered {
-                    openedSeperators++
-                } else {
-                    openedSeperators = 0
-                    break
-                }
-            } else if isClosingObjectCharacter(fileData[objectIndex]) {
-                openedSeperators--
+        // check for instances of a proptery with value of "red" e.x.: ':"red'
+        if (fileIndex + 4) < fileLength && 
+            character == '"' && 
+            fileData[fileIndex + 1] == 'r' &&
+            fileData[fileIndex + 2] == 'e' &&
+            fileData[fileIndex + 3] == 'd' {
+            // determine the index bounds of the object with the property set to "red" for removal
+            var openArrays = 0
+            var openObjects = 0
+            var removeCharacterCount = 0
+            // move backwards to find the originating opening { bracket 
+            for objectIndex := fileIndex; objectIndex >= 0; objectIndex-- {    
+                removeCharacterCount++
+                                         
+                var subStringCharacter = fileData[objectIndex]
                 
-                if openedSeperators == 0 && redWordEncountered {
-                    redWordEncountered = false
-                    index = objectIndex + 1                    
+                if isOpeningArrayCharacter(subStringCharacter) {
+                    openArrays++
+                } else if isClosingArrayCharacter(subStringCharacter) {
+                    openArrays--
+                } else if isOpeningObjectCharacter(subStringCharacter) {
+                    openObjects++
+                } else if isClosingObjectCharacter(subStringCharacter) {
+                    openObjects--
                 }
+                
+                // "red" property was found within an array. No need to filter sub-string.       
+                if openArrays == 1 && openObjects == 0 {
+                    break
+                } 
+                
+                // "red" property was found within an object. Find end of object and purge the object.
+                if openArrays == 0 && openObjects == 1 {
+                    for invalidIndex := fileIndex + 4; invalidIndex < fileLength; invalidIndex++ {
+                        if isOpeningObjectCharacter(fileData[invalidIndex]) {
+                            openObjects++
+                        } else if isClosingObjectCharacter(fileData[invalidIndex]) {
+                            openObjects--
+                        }
+                        
+                        if openObjects == 0 {
+                            fileIndex = invalidIndex
+                            break
+                        }
+                    }
+                    
+                    characterCount -= removeCharacterCount                    
+                    cleanedFile = cleanedFile[0:characterCount]
+                    break
+                }                
             }
-        }
+        }   
     }
-    
-    fmt.Println(string(cleanedFile))
     
     partOneFilter := RemoveNonNumericCharactersFileFilter {}
     return partOneFilter.Clean(cleanedFile)
-}
-
-func isOpeningObjectCharacter(character byte) bool {
-    return character == '{'
-}
-
-func isClosingObjectCharacter(character byte) bool {
-    return character == '}'
 }

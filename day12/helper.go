@@ -1,8 +1,9 @@
 package main
 
 import (
-    "os"
+    "os"    
     "bufio"
+    "strconv"
 )
 
 var allowedCharacters = []byte { '[', ']', '{', '}', '-', ',', ':' }
@@ -11,8 +12,8 @@ type FileFilter interface {
     Clean(fileData []byte) []byte
 }
 
-func getRawAccountingFileData() []byte {
-    file, _ := os.Open("accounting.txt")
+func getRawAccountingFileData(fileName string) []byte {
+    file, _ := os.Open(fileName)
     defer file.Close()
     scanner := bufio.NewScanner(file)
     scanner.Split(bufio.ScanLines)
@@ -23,10 +24,30 @@ func getRawAccountingFileData() []byte {
 	return fileData
 }
 
-func getCleanedAccountingFile(filter FileFilter) []byte {
-    accountingFile := getRawAccountingFileData()
+func getCleanedAccountingFile(fileName string, filter FileFilter) []byte {
+    accountingFile := getRawAccountingFileData(fileName)
     return filter.Clean(accountingFile)
 } 
+
+func getSumOfAccountingFile(fileName string, filter FileFilter) int {
+    sumOfAccountingFile := 0
+    fileData := getCleanedAccountingFile(fileName, filter)
+    fileLength := len(fileData)
+    
+    for index := 0; index < fileLength; index++ {
+        character := fileData[index]
+        if isNumericASCIICharacter(character) || character == '-' {
+            numberString := string(character)
+            for (index + 1 < fileLength) && isNumericASCIICharacter(fileData[index + 1]) {
+                numberString += string(fileData[index + 1])
+                index++
+            }
+            number, _ := strconv.Atoi(numberString)
+            sumOfAccountingFile += number
+        }
+    }
+    return sumOfAccountingFile
+}
 
 func isNumericASCIICharacter(input byte) bool {
     return input >= '0' && input <= '9'
@@ -39,4 +60,20 @@ func isAllowedCharacter(input byte) bool {
         }
     }
     return false
+}
+
+func isOpeningObjectCharacter(character byte) bool {
+    return character == '{'
+}
+
+func isClosingObjectCharacter(character byte) bool {
+    return character == '}'
+}
+
+func isOpeningArrayCharacter(character byte) bool {
+    return character == '['
+}
+
+func isClosingArrayCharacter(character byte) bool {
+    return character == ']'
 }

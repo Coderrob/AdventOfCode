@@ -18,10 +18,6 @@ You will not encounter any strings containing numbers.
 What is the sum of all numbers in the document?
 */
 
-import (
-    "strconv"
-)
-
 type RemoveNonNumericCharactersFileFilter struct {    
 }
 
@@ -34,24 +30,4 @@ func (filter RemoveNonNumericCharactersFileFilter) Clean(fileData []byte) []byte
         }
     }
     return cleanedFile
-}
-
-func getSumOfAccountingFile(filter FileFilter) int {
-    sumOfAccountingFile := 0
-    fileData := getCleanedAccountingFile(filter)
-    fileLength := len(fileData)
-    
-    for index := 0; index < fileLength; index++ {
-        character := fileData[index]
-        if isNumericASCIICharacter(character) || character == '-' {
-            numberString := string(character)
-            for (index + 1 < fileLength) && isNumericASCIICharacter(fileData[index + 1]) {
-                numberString += string(fileData[index + 1])
-                index++
-            }
-            number, _ := strconv.Atoi(numberString)
-            sumOfAccountingFile += number
-        }
-    }
-    return sumOfAccountingFile
 }
