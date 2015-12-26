@@ -27,11 +27,13 @@ func (filter RemoveRedChildrenFileFilter) Clean(fileData []byte) []byte {
         characterCount++
         
         // check for instances of a proptery with value of "red" e.x.: ':"red'
-        if (fileIndex + 4) < fileLength && 
-            character == '"' && 
-            fileData[fileIndex + 1] == 'r' &&
-            fileData[fileIndex + 2] == 'e' &&
-            fileData[fileIndex + 3] == 'd' {
+        if (fileIndex + 5) < fileLength && 
+            character == ':' &&
+            fileData[fileIndex + 1] == '"' && 
+            fileData[fileIndex + 2] == 'r' &&
+            fileData[fileIndex + 3] == 'e' &&
+            fileData[fileIndex + 4] == 'd' && 
+            fileData[fileIndex + 5] == '"'{
             // determine the index bounds of the object with the property set to "red" for removal
             var openArrays = 0
             var openObjects = 0
@@ -59,7 +61,7 @@ func (filter RemoveRedChildrenFileFilter) Clean(fileData []byte) []byte {
                 
                 // "red" property was found within an object. Find end of object and purge the object.
                 if openArrays == 0 && openObjects == 1 {
-                    for invalidIndex := fileIndex + 4; invalidIndex < fileLength; invalidIndex++ {
+                    for invalidIndex := fileIndex + 5; invalidIndex < fileLength; invalidIndex++ {
                         if isOpeningObjectCharacter(fileData[invalidIndex]) {
                             openObjects++
                         } else if isClosingObjectCharacter(fileData[invalidIndex]) {
