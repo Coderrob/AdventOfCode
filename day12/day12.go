@@ -8,8 +8,6 @@ func main() {
     fmt.Println("Part 1")
     fmt.Println(getSumOfAccountingFile("accounting.txt", partOneFilter))
     
-    partTwoFilter := RemoveRedChildrenFileFilter {}
-    
     fmt.Println("Part 2")
-    fmt.Println(getSumOfAccountingFile("accounting.txt", partTwoFilter))
+    fmt.Println(getSumOfAccountingFileWithoutRedProperty("accounting.txt"))
 }

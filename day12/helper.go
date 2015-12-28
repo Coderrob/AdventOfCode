@@ -38,7 +38,7 @@ func getSumOfAccountingFile(fileName string, filter FileFilter) int {
         character := fileData[index]
         if isNumericASCIICharacter(character) || character == '-' {
             numberString := string(character)
-            for (index + 1 < fileLength) && isNumericASCIICharacter(fileData[index + 1]) {
+            for (index + 1) < fileLength && isNumericASCIICharacter(fileData[index + 1]) {
                 numberString += string(fileData[index + 1])
                 index++
             }
@@ -62,18 +62,10 @@ func isAllowedCharacter(input byte) bool {
     return false
 }
 
-func isOpeningObjectCharacter(character byte) bool {
-    return character == '{'
-}
-
-func isClosingObjectCharacter(character byte) bool {
-    return character == '}'
-}
-
-func isOpeningArrayCharacter(character byte) bool {
-    return character == '['
-}
-
-func isClosingArrayCharacter(character byte) bool {
-    return character == ']'
+func getNumericValue(input interface{}) (int, bool) {
+    switch input := input.(type) {
+        case float64:
+            return int(input), true
+    }
+    return 0, false
 }

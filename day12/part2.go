@@ -13,75 +13,81 @@ Ignore any object (and all of its children) which has any property with the valu
 [1,"red",5] has a sum of 6, because "red" in an array has no effect.
 */
 
-type RemoveRedChildrenFileFilter struct {    
-}
+import (
+    "encoding/json"
+)
 
-func (filter RemoveRedChildrenFileFilter) Clean(fileData []byte) []byte {    
-    cleanedFile := []byte {}
-    fileLength := len(fileData)
-    characterCount := 0
+func getSumOfAccountingFileWithoutRedProperty(fileName string) int {
+    fileData := getRawAccountingFileData(fileName)
+    array := []interface{} {}
     
-    for fileIndex := 0; fileIndex < fileLength; fileIndex++ {        
-        var character = fileData[fileIndex]        
-        cleanedFile = append(cleanedFile, character)
-        characterCount++
-        
-        // check for instances of a proptery with value of "red" e.x.: ':"red'
-        if (fileIndex + 5) < fileLength && 
-            character == ':' &&
-            fileData[fileIndex + 1] == '"' && 
-            fileData[fileIndex + 2] == 'r' &&
-            fileData[fileIndex + 3] == 'e' &&
-            fileData[fileIndex + 4] == 'd' && 
-            fileData[fileIndex + 5] == '"'{
-            // determine the index bounds of the object with the property set to "red" for removal
-            var openArrays = 0
-            var openObjects = 0
-            var removeCharacterCount = 0
-            // move backwards to find the originating opening { bracket 
-            for objectIndex := fileIndex; objectIndex >= 0; objectIndex-- {    
-                removeCharacterCount++
-                                         
-                var subStringCharacter = fileData[objectIndex]
-                
-                if isOpeningArrayCharacter(subStringCharacter) {
-                    openArrays++
-                } else if isClosingArrayCharacter(subStringCharacter) {
-                    openArrays--
-                } else if isOpeningObjectCharacter(subStringCharacter) {
-                    openObjects++
-                } else if isClosingObjectCharacter(subStringCharacter) {
-                    openObjects--
-                }
-                
-                // "red" property was found within an array. No need to filter sub-string.       
-                if openArrays == 1 && openObjects == 0 {
-                    break
-                } 
-                
-                // "red" property was found within an object. Find end of object and purge the object.
-                if openArrays == 0 && openObjects == 1 {
-                    for invalidIndex := fileIndex + 5; invalidIndex < fileLength; invalidIndex++ {
-                        if isOpeningObjectCharacter(fileData[invalidIndex]) {
-                            openObjects++
-                        } else if isClosingObjectCharacter(fileData[invalidIndex]) {
-                            openObjects--
-                        }
-                        
-                        if openObjects == 0 {
-                            fileIndex = invalidIndex
-                            break
-                        }
-                    }
-                    
-                    characterCount -= removeCharacterCount                    
-                    cleanedFile = cleanedFile[0:characterCount]
-                    break
-                }                
-            }
-        }   
+    if err := json.Unmarshal(fileData, &array); err != nil {
+        return 0
     }
     
-    partOneFilter := RemoveNonNumericCharactersFileFilter {}
-    return partOneFilter.Clean(cleanedFile)
+    return processArray(array)
+}
+
+func processArray(array []interface{}) int {
+	total := 0
+	for _, arrayValue := range array {
+		if value, ok := getNumericValue(arrayValue); ok {
+			total += value
+            continue
+        }
+        
+        if array, ok := arrayValue.([]interface{}); ok {
+			total += processArray(array)
+            continue
+		} 
+        
+        if objectMap, ok := arrayValue.(map[string]interface{}); ok {
+			total += processMap(objectMap)
+        }
+	}
+	return total
+}
+
+func processObject(object interface{}) int {
+	if value, ok := getNumericValue(object); ok {
+        return value
+    }
+    
+	if array, ok := object.([]interface{}); ok {
+		return processArray(array)
+	}
+
+	if objectMap, ok := object.(map[string]interface{}); ok {
+		return processMap(objectMap)
+	}
+    
+	return 0
+}
+
+func processMap(object map[string]interface{}) int {
+	total := 0
+	for _, field := range object {
+        if value, isString := field.(string); isString {
+			if value == "red" {
+				return 0
+			}
+			continue
+		}
+        
+		if value, ok := getNumericValue(field); ok {
+            total += value
+			continue
+        }
+
+		if array, ok := field.([]interface{}); ok {
+			total += processArray(array)
+			continue
+		}
+                
+		if object, ok := field.(map[string]interface{}); ok {
+			total += processObject(object)
+			continue
+		}
+	}
+	return total
 }
