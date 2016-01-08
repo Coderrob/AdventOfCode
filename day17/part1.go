@@ -14,6 +14,7 @@ For example, suppose you have containers of size 20, 15, 10, 5, and 5 liters. If
 Filling all containers entirely, how many different combinations of containers can exactly fit all 150 liters of eggnog?
 */
 
-func getCountOfContainerCombinationsByLiter(liters int, containers []int) int {
-    return 0
+func getCountOfUniqueContainers(liters int, containers []int) int {
+	combinations := getPossibleContainerCombinations(liters, containers)
+	return len(combinations)
 }

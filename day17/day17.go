@@ -3,10 +3,10 @@ package main
 import "fmt"
 
 func main() {
-    runTests()
-    return
-    
-    containers := loadContainerList("containers.txt")
-    fmt.Println("Part 1")
-    fmt.Println(getCountOfContainerCombinationsByLiter(150, containers))
+	containers := loadContainerList("containers.txt")
+	fmt.Println("Part 1")
+	fmt.Println(getCountOfUniqueContainers(150, containers))
+
+	fmt.Println("Part 2")
+	fmt.Println(getMinimumCountOfUniqueContainers(150, containers))
 }
