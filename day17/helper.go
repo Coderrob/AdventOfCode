@@ -23,14 +23,15 @@ func getPossibleContainerCombinations(target int, values []int) [][]int {
 	possibleValues := pow(2, len(values))
 	output := [][]int{}
 
-	for of := possibleValues; of > 0; of-- {
+	for value := possibleValues; value > 0; value-- {
 		row := []int{}
-		for i := 0; i < len(values); i++ {
-			y := 1 << uint(i)
-			if y&of == 0 && y != of {
-				row = append(row, values[i])
+		for index := 0; index < len(values); index++ {
+			shiftValue := 1 << uint(index)
+			if shiftValue & value == 0 && shiftValue != value {
+				row = append(row, values[index])
 			}
 		}
+        
 		if len(row) > 0 && sum(row) == target {
 			output = append(output, row)
 		}
