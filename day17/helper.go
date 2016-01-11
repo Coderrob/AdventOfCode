@@ -56,7 +56,7 @@ func pow(value, power int) int {
 }
 
 func getMinimumLengthOfContainers(combinations [][]int) int {
-	minLength := 1 << 32
+	minLength := math.MaxInt32
 	for _, containers := range combinations {
 		if len(containers) < minLength {
 			minLength = len(containers)
